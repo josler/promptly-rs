@@ -1,0 +1,8 @@
+[package]
+name = "promptly"
+version = "0.1.0"
+authors = ["josler <j.osler@gmail.com>"]
+
+[dependencies]
+clap = "2.31"
+termion = "1.5.1"
