@@ -19,6 +19,10 @@ fn main() {
             // statements.push(&statement::YesQuestion {});
             statement::while_success(vec![
                 &statement::Statement {
+                    name: "YesNo".to_string(),
+                    question: &statement::YesNoQuestion {},
+                },
+                &statement::Statement {
                     name: "foo".to_string(),
                     question: &statement::YesQuestion {},
                 },
@@ -33,7 +37,6 @@ fn main() {
             std::process::exit(1);
         }
     }
-    let c = cli::CLI::new();
-    c.agree("foo");
-    c.say_green("bar");
+    // let c = cli::CLI::new();
+    // c.agree("Do you agree?");
 }

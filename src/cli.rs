@@ -9,31 +9,44 @@ impl CLI {
     }
 
     // like asking a question, but the question is "do you agree |yes|"
-    pub fn agree(&self, question: &str) {
-        self.write_out(question);
+    pub fn agree(&self) -> Result<bool> {
+        self.question("do you agree?", "yes")
+    }
+
+    pub fn question(&self, question: &str, default: &str) -> Result<bool> {
+        self.write_out(question, default);
 
         let mut input = String::new();
-        match self.read_in(&mut input) {
-            Ok(_) => println!("{}", input),
-            Err(error) => println!("error: {}", error),
+        if let Err(err) = self.read_in(&mut input) {
+            return Err(err);
         }
+
+        let lower = self.get_clean_string(&input, default);
+        let yes_values: [String; 3] = ["yes".to_string(), "y".into(), "1".into()];
+        if yes_values.contains(&lower) {
+            return Ok(true);
+        }
+        Ok(false)
     }
 
     // needs to take a closure too
     // ask a question and ...
-    pub fn ask_for(&self, query: &str) {}
+    pub fn ask_for(&self, question: &String) {}
 
-    pub fn say_red(&self, text: &str) {}
+    pub fn say_red(&self, question: &String) {}
 
-    pub fn say_green(&self, text: &str) {
-        println!("{}", text);
+    pub fn say_green(&self, question: &String) {
+        println!("{}", question);
     }
 
-    fn write_out(&self, text: &str) {
+    fn write_out(&self, text: &str, default: &str) {
         let stdout = stdout();
         let mut stdout = stdout.lock();
 
-        &stdout.write_all(text.as_bytes()).unwrap();
+        let formatted = format!("{} |{}|\n", text, default);
+
+        stdout.write_all(formatted.as_bytes()).unwrap();
+        stdout.flush().unwrap();
     }
 
     fn read_in(&self, input: &mut String) -> Result<usize> {
@@ -41,5 +54,13 @@ impl CLI {
         let mut stdin = stdin.lock();
 
         stdin.read_line(input)
+    }
+
+    fn get_clean_string(&self, input: &String, default: &str) -> String {
+        let mut lower = input.trim().to_lowercase();
+        if lower.is_empty() {
+            lower = default.to_string();
+        }
+        lower
     }
 }
