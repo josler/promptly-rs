@@ -15,19 +15,17 @@ fn main() {
     match matches.subcommand_name() {
         Some("pr") => {
             println!("pr");
-            // let statements = vec![];
-            // statements.push(&statement::YesQuestion {});
             statement::while_success(vec![
                 &statement::Statement {
-                    name: "YesNo".to_string(),
-                    question: &statement::YesNoQuestion {},
+                    action: "git st".to_string(),
+                    question: &statement::AskQuestion {},
                 },
                 &statement::Statement {
-                    name: "foo".to_string(),
+                    action: "ls".to_string(),
                     question: &statement::YesQuestion {},
                 },
                 &statement::Statement {
-                    name: "bar".to_string(),
+                    action: "echo 'foo'".to_string(),
                     question: &statement::NoQuestion {},
                 },
             ]);
@@ -37,6 +35,4 @@ fn main() {
             std::process::exit(1);
         }
     }
-    // let c = cli::CLI::new();
-    // c.agree("Do you agree?");
 }

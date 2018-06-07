@@ -8,11 +8,6 @@ impl CLI {
         CLI {}
     }
 
-    // like asking a question, but the question is "do you agree |yes|"
-    pub fn agree(&self) -> Result<bool> {
-        self.question("do you agree?", "yes")
-    }
-
     pub fn question(&self, question: &str, default: &str) -> Result<bool> {
         self.write_out(question, default);
 

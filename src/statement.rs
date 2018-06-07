@@ -9,7 +9,7 @@ pub fn while_success(statements: Vec<&Statement>) {
             Some(_) => true,
             None => false,
         })
-        .for_each(|s| println!("{}", s.name));
+        .for_each(|s| println!("{}", s.action));
 }
 
 pub trait Question {
@@ -17,13 +17,13 @@ pub trait Question {
 }
 
 pub struct Statement<'a> {
-    pub name: String,
     pub question: &'a Question,
+    pub action: String,
 }
 
 impl<'a> Debug for Statement<'a> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{:?}", self.name)
+        write!(f, "{:?}", self.action)
     }
 }
 
@@ -31,7 +31,7 @@ pub struct YesQuestion {}
 
 impl Question for YesQuestion {
     fn ask(&self) -> Option<&str> {
-        Some("some result")
+        Some("yes")
     }
 }
 
@@ -43,12 +43,12 @@ impl Question for NoQuestion {
     }
 }
 
-pub struct YesNoQuestion {}
+pub struct AskQuestion {}
 
-impl Question for YesNoQuestion {
+impl Question for AskQuestion {
     fn ask(&self) -> Option<&str> {
         let c = cli::CLI::new();
-        return match c.agree() {
+        return match c.question("do you agree?", "yes") {
             Ok(true) => Some("ok"),
             Ok(false) => None,
             Err(_) => None,
