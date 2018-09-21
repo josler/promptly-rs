@@ -1,5 +1,4 @@
 use std::io::{stdin, stdout, BufRead, Result, Write};
-// use termion::input::TermRead;
 
 pub struct CLI {}
 
@@ -8,30 +7,42 @@ impl CLI {
         CLI {}
     }
 
-    pub fn question(&self, question: &str, default: &str) -> Result<bool> {
+    pub fn question<'a>(&self, question: &str, default: &'a str) -> Result<String> {
         self.write_out(question, default);
 
         let mut input = String::new();
         if let Err(err) = self.read_in(&mut input) {
             return Err(err);
         }
-
-        let lower = self.get_clean_string(&input, default);
-        let yes_values: [String; 3] = ["yes".to_string(), "y".into(), "1".into()];
-        if yes_values.contains(&lower) {
-            return Ok(true);
-        }
-        Ok(false)
+        Ok(self.trim_lower(input, default))
     }
 
-    // needs to take a closure too
-    // ask a question and ...
-    pub fn ask_for(&self, question: &String) {}
+    fn trim_lower<'a>(&self, input: String, default: &'a str) -> String {
+        let trimmed = input.trim();
+        if trimmed.is_empty() {
+            return default.to_string();
+        }
+        let lower = trimmed.to_lowercase();
+        lower
+    }
 
-    pub fn say_red(&self, question: &String) {}
+    pub fn yes_no_question(&self, question: &str, default: &str) -> Result<bool> {
+        let res = self.question(question, default);
+        return match res {
+            Err(err) => Err(err),
+            Ok(val) => {
+                let yes_values: [String; 3] = ["yes".to_string(), "y".into(), "1".into()];
+                if yes_values.contains(&val) {
+                    Ok(true)
+                } else {
+                    Ok(false)
+                }
+            }
+        };
+    }
 
-    pub fn say_green(&self, question: &String) {
-        println!("{}", question);
+    pub fn say_red(&self, words: &String) {
+        println!("{}", words);
     }
 
     fn write_out(&self, text: &str, default: &str) {
@@ -49,13 +60,5 @@ impl CLI {
         let mut stdin = stdin.lock();
 
         stdin.read_line(input)
-    }
-
-    fn get_clean_string(&self, input: &String, default: &str) -> String {
-        let mut lower = input.trim().to_lowercase();
-        if lower.is_empty() {
-            lower = default.to_string();
-        }
-        lower
     }
 }

@@ -1,11 +1,13 @@
 extern crate clap;
-use clap::{App, SubCommand};
+mod action;
 mod cli;
+mod question;
 mod statement;
 
-fn main() {
-    println!("Hello, world!");
+use clap::{App, SubCommand};
+use question::{AlwaysNoQuestion, AlwaysYesQuestion, AskQuestion};
 
+fn main() {
     let matches = App::new("promptly")
         .version("1.0")
         .author("James Osler")
@@ -14,19 +16,30 @@ fn main() {
 
     match matches.subcommand_name() {
         Some("pr") => {
-            println!("pr");
             statement::while_success(vec![
                 &statement::Statement {
-                    action: "git st".to_string(),
-                    question: &statement::AskQuestion {},
+                    question: &AskQuestion {
+                        ask: "Should I do this?",
+                        default: "yes",
+                    },
+                    action: &action::CommandAction {
+                        action: "git",
+                        args: &["st"],
+                    },
                 },
                 &statement::Statement {
-                    action: "ls".to_string(),
-                    question: &statement::YesQuestion {},
+                    question: &AlwaysYesQuestion {},
+                    action: &action::CommandAction {
+                        action: "ls",
+                        args: &["-l"],
+                    },
                 },
                 &statement::Statement {
-                    action: "echo 'foo'".to_string(),
-                    question: &statement::NoQuestion {},
+                    question: &AlwaysNoQuestion {},
+                    action: &action::CommandAction {
+                        action: "echo",
+                        args: &["'foo'"],
+                    },
                 },
             ]);
         }
