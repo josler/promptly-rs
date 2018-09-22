@@ -1,11 +1,15 @@
 extern crate clap;
+#[macro_use]
+extern crate failure_derive;
+extern crate failure;
+
 mod action;
 mod cli;
 mod question;
 mod statement;
 
 use clap::{App, SubCommand};
-use question::{AlwaysNoQuestion, AlwaysYesQuestion, AskQuestion};
+use question::*;
 
 fn main() {
     let matches = App::new("promptly")
@@ -18,28 +22,29 @@ fn main() {
         Some("pr") => {
             statement::while_success(vec![
                 &statement::Statement {
-                    question: &AskQuestion {
-                        ask: "Should I do this?",
-                        default: "yes",
+                    question: &InfoQuestion {
+                        ask: "PR Description?",
+                        default: "",
                     },
-                    action: &action::CommandAction {
-                        action: "git",
-                        args: &["st"],
-                    },
+                    action: None,
+                },
+                &statement::Statement {
+                    question: &BranchQuestion { ask: "Foo" },
+                    action: None,
                 },
                 &statement::Statement {
                     question: &AlwaysYesQuestion {},
-                    action: &action::CommandAction {
+                    action: Some(&action::CommandAction {
                         action: "ls",
                         args: &["-l"],
-                    },
+                    }),
                 },
                 &statement::Statement {
                     question: &AlwaysNoQuestion {},
-                    action: &action::CommandAction {
+                    action: Some(&action::CommandAction {
                         action: "echo",
                         args: &["'foo'"],
-                    },
+                    }),
                 },
             ]);
         }

@@ -5,4 +5,6 @@ authors = ["josler <j.osler@gmail.com>"]
 
 [dependencies]
 clap = "2.31"
+failure = "0.1.2"
 termion = "1.5.1"
+failure_derive = "0.1.2"

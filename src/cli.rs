@@ -17,15 +17,6 @@ impl CLI {
         Ok(self.trim_lower(input, default))
     }
 
-    fn trim_lower<'a>(&self, input: String, default: &'a str) -> String {
-        let trimmed = input.trim();
-        if trimmed.is_empty() {
-            return default.to_string();
-        }
-        let lower = trimmed.to_lowercase();
-        lower
-    }
-
     pub fn yes_no_question(&self, question: &str, default: &str) -> Result<bool> {
         let res = self.question(question, default);
         return match res {
@@ -45,11 +36,23 @@ impl CLI {
         println!("{}", words);
     }
 
+    fn trim_lower<'a>(&self, input: String, default: &'a str) -> String {
+        let trimmed = input.trim();
+        if trimmed.is_empty() {
+            return default.to_string();
+        }
+        let lower = trimmed.to_lowercase();
+        lower
+    }
+
     fn write_out(&self, text: &str, default: &str) {
         let stdout = stdout();
         let mut stdout = stdout.lock();
 
-        let formatted = format!("{} |{}|\n", text, default);
+        let formatted = match default.is_empty() {
+            true => format!("{}\n", text),
+            false => format!("{} |{}|\n", text, default),
+        };
 
         stdout.write_all(formatted.as_bytes()).unwrap();
         stdout.flush().unwrap();
