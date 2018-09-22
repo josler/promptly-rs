@@ -1,6 +1,9 @@
 extern crate clap;
+
 #[macro_use]
 extern crate failure_derive;
+
+#[macro_use]
 extern crate failure;
 
 mod action;
@@ -33,7 +36,10 @@ fn main() {
                     action: None,
                 },
                 &statement::Statement {
-                    question: &AlwaysYesQuestion {},
+                    question: &AskQuestion {
+                        ask: "foo?",
+                        default: "bar",
+                    },
                     action: Some(&action::CommandAction {
                         action: "ls",
                         args: &["-l"],

@@ -10,7 +10,7 @@ pub struct AlwaysYesQuestion {}
 
 impl Question for AlwaysYesQuestion {
     fn ask(&self, _context: &mut HashMap<String, String>) -> Option<&str> {
-        Some("yes")
+        Some("Yes")
     }
 }
 
@@ -32,7 +32,7 @@ impl<'a> Question for AskQuestion<'a> {
         let c = cli::CLI::new();
         return match c.yes_no_question(self.ask, self.default) {
             Ok(true) => {
-                context.insert("foo".to_string(), RefCell::new("bar".to_string()));
+                context.insert("foo".to_string(), "bar".to_string());
                 Some("yes")
             }
             Ok(false) => None,
@@ -51,8 +51,8 @@ impl<'a> Question for InfoQuestion<'a> {
         let c = cli::CLI::new();
         return match c.question(self.ask, self.default) {
             Ok(result) => {
-                context.insert(self.ask.to_string(), RefCell::new(result));
-                Some("yes")
+                context.insert(self.ask.to_string(), result);
+                Some("Yes")
             }
             Err(_) => None,
         };
@@ -69,9 +69,9 @@ impl<'a> Question for BranchQuestion<'a> {
         let default = self.get_default(context);
         context.insert(
             self.ask.to_string(),
-            RefCell::new(c.question(self.ask, &default).unwrap()),
+            c.question(self.ask, &default).unwrap(),
         );
-        Some("yes")
+        Some("Yes")
     }
 }
 
@@ -79,8 +79,7 @@ impl<'a> BranchQuestion<'a> {
     fn get_default(&self, context: &'a mut HashMap<String, String>) -> String {
         let default = context
             .entry("PR Description?".to_string())
-            .or_insert(RefCell::new("ayyy".to_string()))
-            .borrow();
+            .or_insert("ayyy".to_string());
         default.to_string()
     }
 }
