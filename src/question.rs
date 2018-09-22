@@ -3,13 +3,13 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 
 pub trait Question {
-    fn ask(&self, context: &mut HashMap<String, RefCell<String>>) -> Option<&str>;
+    fn ask(&self, context: &mut HashMap<String, String>) -> Option<&str>;
 }
 
 pub struct AlwaysYesQuestion {}
 
 impl Question for AlwaysYesQuestion {
-    fn ask(&self, _context: &mut HashMap<String, RefCell<String>>) -> Option<&str> {
+    fn ask(&self, _context: &mut HashMap<String, String>) -> Option<&str> {
         Some("yes")
     }
 }
@@ -17,7 +17,7 @@ impl Question for AlwaysYesQuestion {
 pub struct AlwaysNoQuestion {}
 
 impl Question for AlwaysNoQuestion {
-    fn ask(&self, _context: &mut HashMap<String, RefCell<String>>) -> Option<&str> {
+    fn ask(&self, _context: &mut HashMap<String, String>) -> Option<&str> {
         None
     }
 }
@@ -28,7 +28,7 @@ pub struct AskQuestion<'a> {
 }
 
 impl<'a> Question for AskQuestion<'a> {
-    fn ask(&self, context: &mut HashMap<String, RefCell<String>>) -> Option<&str> {
+    fn ask(&self, context: &mut HashMap<String, String>) -> Option<&str> {
         let c = cli::CLI::new();
         return match c.yes_no_question(self.ask, self.default) {
             Ok(true) => {
@@ -47,7 +47,7 @@ pub struct InfoQuestion<'a> {
 }
 
 impl<'a> Question for InfoQuestion<'a> {
-    fn ask(&self, context: &mut HashMap<String, RefCell<String>>) -> Option<&str> {
+    fn ask(&self, context: &mut HashMap<String, String>) -> Option<&str> {
         let c = cli::CLI::new();
         return match c.question(self.ask, self.default) {
             Ok(result) => {
@@ -64,7 +64,7 @@ pub struct BranchQuestion<'a> {
 }
 
 impl<'a> Question for BranchQuestion<'a> {
-    fn ask(&self, context: &mut HashMap<String, RefCell<String>>) -> Option<&str> {
+    fn ask(&self, context: &mut HashMap<String, String>) -> Option<&str> {
         let c = cli::CLI::new();
         let default = self.get_default(context);
         context.insert(
@@ -76,7 +76,7 @@ impl<'a> Question for BranchQuestion<'a> {
 }
 
 impl<'a> BranchQuestion<'a> {
-    fn get_default(&self, context: &'a mut HashMap<String, RefCell<String>>) -> String {
+    fn get_default(&self, context: &'a mut HashMap<String, String>) -> String {
         let default = context
             .entry("PR Description?".to_string())
             .or_insert(RefCell::new("ayyy".to_string()))
