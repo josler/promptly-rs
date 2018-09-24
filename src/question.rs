@@ -41,7 +41,6 @@ impl<'a> Question for Command<'a> {
     fn ask(&self, _context: &mut HashMap<String, String>) -> Result<String, Error> {
         let c = cli::CLI::new();
         let res = c.run_command(self.action, self.args)?;
-        println!("{}", res);
         Ok(res)
     }
 }
@@ -61,7 +60,6 @@ impl<'a> Question for PRBranch<'a> {
             branch_name.clone(),
         );
         let res = c.run_command("git", &["checkout", "-b", &branch_name])?;
-        println!("{}", res);
         Ok(res)
     }
 }
@@ -77,7 +75,6 @@ impl<'a> Question for CommitText<'a> {
         let commit_text = get_set_existing(&c, context, self.ask, self.default);
         c.run_command("git", &["add", "."])?;
         let res = c.run_command("git", &["commit", "-m", &commit_text])?;
-        println!("{}", res);
         Ok(res)
     }
 }
@@ -92,7 +89,6 @@ impl<'a> Question for CreatePR<'a> {
         let c = cli::CLI::new();
         let pr_text = get_set_existing(&c, context, self.ask, self.default);
         let res = c.run_command("hub", &["pull-request", "-m", &format!("\"{}\"", pr_text), "-o"])?;
-        println!("{}", res);
         Ok(res)
     }
 }
