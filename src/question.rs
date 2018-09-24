@@ -1,85 +1,114 @@
 use cli;
-use std::cell::RefCell;
 use std::collections::HashMap;
+use failure::{Error};
 
 pub trait Question {
-    fn ask(&self, context: &mut HashMap<String, String>) -> Option<&str>;
+    fn ask(&self, context: &mut HashMap<String, String>) -> Result<String, Error>;
 }
 
-pub struct AlwaysYesQuestion {}
-
-impl Question for AlwaysYesQuestion {
-    fn ask(&self, _context: &mut HashMap<String, String>) -> Option<&str> {
-        Some("Yes")
-    }
-}
-
-pub struct AlwaysNoQuestion {}
-
-impl Question for AlwaysNoQuestion {
-    fn ask(&self, _context: &mut HashMap<String, String>) -> Option<&str> {
-        None
-    }
-}
-
-pub struct AskQuestion<'a> {
+pub struct Info<'a> {
     pub ask: &'a str,
     pub default: &'a str,
 }
 
-impl<'a> Question for AskQuestion<'a> {
-    fn ask(&self, context: &mut HashMap<String, String>) -> Option<&str> {
+impl<'a> Question for Info<'a> {
+    fn ask(&self, context: &mut HashMap<String, String>) -> Result<String, Error> {
         let c = cli::CLI::new();
-        return match c.yes_no_question(self.ask, self.default) {
-            Ok(true) => {
-                context.insert("foo".to_string(), "bar".to_string());
-                Some("yes")
-            }
-            Ok(false) => None,
-            Err(_) => None,
-        };
+        let result = c.question(self.ask, self.default)?;
+        context.insert(self.ask.to_string(), result.clone());
+        Ok(result)
     }
 }
 
-pub struct InfoQuestion<'a> {
+pub struct Ask<'a> {
+    pub ask: &'a str,
+}
+
+impl<'a> Question for Ask<'a> {
+    fn ask(&self, _context: &mut HashMap<String, String>) -> Result<String, Error> {
+        let c = cli::CLI::new();
+        c.yes_no_question(self.ask, "yes")?;
+        Ok("yes".to_string())
+    }
+}
+
+pub struct Command<'a> {
+    pub action: &'a str,
+    pub args: &'a[&'a str]
+}
+
+impl<'a> Question for Command<'a> {
+    fn ask(&self, _context: &mut HashMap<String, String>) -> Result<String, Error> {
+        let c = cli::CLI::new();
+        let res = c.run_command(self.action, self.args)?;
+        println!("{}", res);
+        Ok(res)
+    }
+}
+
+pub struct PRBranch<'a> {
     pub ask: &'a str,
     pub default: &'a str,
 }
 
-impl<'a> Question for InfoQuestion<'a> {
-    fn ask(&self, context: &mut HashMap<String, String>) -> Option<&str> {
+impl<'a> Question for PRBranch<'a> {
+    fn ask(&self, context: &mut HashMap<String, String>) -> Result<String, Error> {
         let c = cli::CLI::new();
-        return match c.question(self.ask, self.default) {
-            Ok(result) => {
-                context.insert(self.ask.to_string(), result);
-                Some("Yes")
-            }
-            Err(_) => None,
-        };
-    }
-}
-
-pub struct BranchQuestion<'a> {
-    pub ask: &'a str,
-}
-
-impl<'a> Question for BranchQuestion<'a> {
-    fn ask(&self, context: &mut HashMap<String, String>) -> Option<&str> {
-        let c = cli::CLI::new();
-        let default = self.get_default(context);
+        let default = get_default(context, self.default);
+        let branch_name = c.question(self.ask, &format!("jo/{}", &default.replace(" ", "-"))).unwrap();
         context.insert(
             self.ask.to_string(),
-            c.question(self.ask, &default).unwrap(),
+            branch_name.clone(),
         );
-        Some("Yes")
+        let res = c.run_command("git", &["checkout", "-b", &branch_name])?;
+        println!("{}", res);
+        Ok(res)
     }
 }
 
-impl<'a> BranchQuestion<'a> {
-    fn get_default(&self, context: &'a mut HashMap<String, String>) -> String {
-        let default = context
-            .entry("PR Description?".to_string())
-            .or_insert("ayyy".to_string());
-        default.to_string()
+pub struct CommitText<'a> {
+    pub ask: &'a str,
+    pub default: &'a str,
+}
+
+impl<'a> Question for CommitText<'a> {
+    fn ask(&self, context: &mut HashMap<String, String>) -> Result<String, Error> {
+        let c = cli::CLI::new();
+        let commit_text = get_set_existing(&c, context, self.ask, self.default);
+        c.run_command("git", &["add", "."])?;
+        let res = c.run_command("git", &["commit", "-m", &commit_text])?;
+        println!("{}", res);
+        Ok(res)
     }
+}
+
+pub struct CreatePR<'a> {
+    pub ask: &'a str,
+    pub default: &'a str,
+}
+
+impl<'a> Question for CreatePR<'a> {
+    fn ask(&self, context: &mut HashMap<String, String>) -> Result<String, Error> {
+        let c = cli::CLI::new();
+        let pr_text = get_set_existing(&c, context, self.ask, self.default);
+        let res = c.run_command("hub", &["pull-request", "-m", &format!("\"{}\"", pr_text), "-o"])?;
+        println!("{}", res);
+        Ok(res)
+    }
+}
+
+fn get_default<'a>(context: &'a mut HashMap<String, String>, key: &str) -> String {
+    context
+        .entry(key.to_string())
+        .or_insert("pr description".to_string()).to_string()
+}
+
+fn get_set_existing(cli: &cli::CLI, context: &mut HashMap<String, String>, ask: &str, default: &str) -> String {
+    let default = get_default(context, default);
+    let existing = cli.question(ask, &default).unwrap();
+    context.insert(
+        ask.to_string(),
+        existing.clone(),
+    );
+    existing
 }
