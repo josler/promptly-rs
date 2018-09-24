@@ -1,4 +1,5 @@
-use std::io::{stdin, stdout, BufRead, Result, Write};
+use std::io::{stdin, stdout, BufRead, Result, Write, Error, ErrorKind};
+use std::process::Command;
 
 pub struct CLI {}
 
@@ -26,14 +27,19 @@ impl CLI {
                 if yes_values.contains(&val) {
                     Ok(true)
                 } else {
-                    Ok(false)
+                    Err(Error::new(ErrorKind::Other, "unsuccessful command"))
                 }
             }
         };
     }
 
-    pub fn say_red(&self, words: &String) {
-        println!("{}", words);
+    pub fn run_command(&self, action: &str, args: &[&str]) -> Result<String> {
+        let output = Command::new(&action).args(args).output()?;
+        if !output.status.success() {
+            return Err(Error::new(ErrorKind::Other, "unsuccessful command"));
+        }
+        let str_out = &String::from_utf8_lossy(&output.stdout);
+        Ok(str_out.to_string())
     }
 
     fn trim_lower<'a>(&self, input: String, default: &'a str) -> String {

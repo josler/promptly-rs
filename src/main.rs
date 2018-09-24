@@ -1,15 +1,9 @@
 extern crate clap;
-
-#[macro_use]
-extern crate failure_derive;
-
-#[macro_use]
 extern crate failure;
 
-mod action;
 mod cli;
 mod question;
-mod statement;
+use std::collections::HashMap;
 
 use clap::{App, SubCommand};
 use question::*;
@@ -20,43 +14,47 @@ fn main() {
         .author("James Osler")
         .subcommand(SubCommand::with_name("pr").about("submit pull request"))
         .get_matches();
-
     match matches.subcommand_name() {
         Some("pr") => {
-            statement::while_success(vec![
-                &statement::Statement {
-                    question: &InfoQuestion {
-                        ask: "PR Description?",
-                        default: "",
-                    },
-                    action: None,
+            while_question_success(vec![
+                &Info{
+                    ask: "PR Description?",
+                    default: "",
                 },
-                &statement::Statement {
-                    question: &BranchQuestion { ask: "Foo" },
-                    action: None,
+                &PRBranch {
+                    ask: "Branch Name?",
+                    default: "PR Description?",
                 },
-                &statement::Statement {
-                    question: &AskQuestion {
-                        ask: "foo?",
-                        default: "bar",
-                    },
-                    action: Some(&action::CommandAction {
-                        action: "ls",
-                        args: &["-l"],
-                    }),
+                &CommitText {
+                    ask: "Commit Text?",
+                    default: "PR Description?",
                 },
-                &statement::Statement {
-                    question: &AlwaysNoQuestion {},
-                    action: Some(&action::CommandAction {
-                        action: "echo",
-                        args: &["'foo'"],
-                    }),
+                &Ask{
+                    ask: "Push to GH?",
                 },
+                &Command {
+                    action: "git",
+                    args: &["push", "-u"],
+                },
+                // &CreatePR {
+                //     ask: "Create PR?",
+                //     default: "PR Description?",
+                // }
             ]);
         }
         _ => {
             println!("unknown command");
             std::process::exit(1);
+        }
+    }
+}
+
+fn while_question_success<'a>(questions: Vec<&Question>) {
+    let mut context = HashMap::new();
+    for question in questions {
+        match question.ask(&mut context) {
+            Err(_) => return,
+            Ok(_) => {},
         }
     }
 }
