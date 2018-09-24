@@ -1,5 +1,5 @@
 use std::io::{stdin, stdout, BufRead, Result, Write, Error, ErrorKind};
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 pub struct CLI {}
 
@@ -34,7 +34,11 @@ impl CLI {
     }
 
     pub fn run_command(&self, action: &str, args: &[&str]) -> Result<String> {
-        let output = Command::new(&action).args(args).output()?;
+        let output = Command::new(&action)
+            .args(args)
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .output()?;
         if !output.status.success() {
             return Err(Error::new(ErrorKind::Other, "unsuccessful command"));
         }

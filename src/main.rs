@@ -36,10 +36,10 @@ fn main() {
                     action: "git",
                     args: &["push", "-u"],
                 },
-                // &CreatePR {
-                //     ask: "Create PR?",
-                //     default: "PR Description?",
-                // }
+                &CreatePR {
+                    ask: "Create PR?",
+                    default: "PR Description?",
+                }
             ]);
         }
         _ => {
