@@ -1,5 +1,6 @@
 extern crate clap;
 extern crate failure;
+extern crate termcolor;
 
 mod cli;
 mod question;

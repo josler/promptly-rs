@@ -1,5 +1,6 @@
-use std::io::{stdin, stdout, BufRead, Result, Write, Error, ErrorKind};
+use std::io::{stdin, BufRead, Result, Write, Error, ErrorKind};
 use std::process::{Command, Stdio};
+use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 pub struct CLI {}
 
@@ -56,15 +57,17 @@ impl CLI {
     }
 
     fn write_out(&self, text: &str, default: &str) {
-        let stdout = stdout();
-        let mut stdout = stdout.lock();
-
         let formatted = match default.is_empty() {
             true => format!("{}\n", text),
             false => format!("{} |{}|\n", text, default),
         };
 
+        let stdout = StandardStream::stdout(ColorChoice::Always);
+        let mut stdout = stdout.lock();
+
+        stdout.set_color(ColorSpec::new().set_fg(Some(Color::Green)).set_bold(true)).unwrap();
         stdout.write_all(formatted.as_bytes()).unwrap();
+        stdout.reset().unwrap();
         stdout.flush().unwrap();
     }
 
