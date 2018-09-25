@@ -88,7 +88,7 @@ impl<'a> Question for CreatePR<'a> {
     fn ask(&self, context: &mut HashMap<String, String>) -> Result<String, Error> {
         let c = cli::CLI::new();
         let pr_text = get_set_existing(&c, context, self.ask, self.default);
-        let res = c.run_command("hub", &["pull-request", "-m", &format!("\"{}\"", pr_text), "-o"])?;
+        let res = c.run_command("hub", &["pull-request", "-m", &pr_text, "-o"])?;
         Ok(res)
     }
 }
@@ -107,4 +107,21 @@ fn get_set_existing(cli: &cli::CLI, context: &mut HashMap<String, String>, ask: 
         existing.clone(),
     );
     existing
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_format() {
+        assert_eq!(&format!("{}!", "my lovely horse"), "my lovely horse!");
+    }
+
+    #[test]
+    fn test_run_command_spaces() {
+        let c = cli::CLI::new();
+        c.run_command("ag", &["lovely horse"]).unwrap();
+        assert_eq!("", "");
+    }
 }
