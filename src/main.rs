@@ -18,27 +18,30 @@ fn main() {
         Some("pr") => {
             while_question_success(vec![
                 &Info{
-                    ask: "PR Description?",
+                    ask: "Description?",
                     default: "",
                 },
                 &PRBranch {
-                    ask: "Branch Name?",
-                    default: "PR Description?",
+                    ask: "Branch name?",
+                    default: "Description?",
                 },
                 &CommitText {
-                    ask: "Commit Text?",
-                    default: "PR Description?",
+                    ask: "Commit text?",
+                    default: "Description?",
                 },
                 &Ask{
-                    ask: "Push to GH?",
+                    ask: "Push to remote?",
                 },
                 &Command {
                     action: "git",
                     args: &["push", "-u"],
                 },
-                &CreatePR {
+                &Ask {
                     ask: "Create PR?",
-                    default: "PR Description?",
+                },
+                &CreatePR {
+                    ask: "PR title?",
+                    default: "Description?",
                 }
             ]);
         }
