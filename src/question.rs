@@ -1,6 +1,6 @@
 use cli;
+use failure::Error;
 use std::collections::HashMap;
-use failure::{Error};
 
 pub trait Question {
     fn ask(&self, context: &mut HashMap<String, String>) -> Result<String, Error>;
@@ -34,7 +34,7 @@ impl<'a> Question for Ask<'a> {
 
 pub struct Command<'a> {
     pub action: &'a str,
-    pub args: &'a[&'a str]
+    pub args: &'a [&'a str],
 }
 
 impl<'a> Question for Command<'a> {
@@ -54,11 +54,10 @@ impl<'a> Question for PRBranch<'a> {
     fn ask(&self, context: &mut HashMap<String, String>) -> Result<String, Error> {
         let c = cli::CLI::new();
         let default = get_default(context, self.default);
-        let branch_name = c.question(self.ask, &format!("jo/{}", &default.replace(" ", "-"))).unwrap();
-        context.insert(
-            self.ask.to_string(),
-            branch_name.clone(),
-        );
+        let branch_name = c
+            .question(self.ask, &format!("jo/{}", &default.replace(" ", "-")))
+            .unwrap();
+        context.insert(self.ask.to_string(), branch_name.clone());
         let res = c.run_command("git", &["checkout", "-b", &branch_name])?;
         Ok(res)
     }
@@ -96,16 +95,19 @@ impl<'a> Question for CreatePR<'a> {
 fn get_default<'a>(context: &'a mut HashMap<String, String>, key: &str) -> String {
     context
         .entry(key.to_string())
-        .or_insert("pr description".to_string()).to_string()
+        .or_insert("pr description".to_string())
+        .to_string()
 }
 
-fn get_set_existing(cli: &cli::CLI, context: &mut HashMap<String, String>, ask: &str, default: &str) -> String {
+fn get_set_existing(
+    cli: &cli::CLI,
+    context: &mut HashMap<String, String>,
+    ask: &str,
+    default: &str,
+) -> String {
     let default = get_default(context, default);
     let existing = cli.question(ask, &default).unwrap();
-    context.insert(
-        ask.to_string(),
-        existing.clone(),
-    );
+    context.insert(ask.to_string(), existing.clone());
     existing
 }
 

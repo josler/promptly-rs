@@ -14,11 +14,12 @@ fn main() {
         .version("1.0")
         .author("James Osler")
         .subcommand(SubCommand::with_name("pr").about("submit pull request"))
+        .subcommand(SubCommand::with_name("ci").about("check github ci status"))
         .get_matches();
     match matches.subcommand_name() {
         Some("pr") => {
             while_question_success(vec![
-                &Info{
+                &Info {
                     ask: "Description?",
                     default: "",
                 },
@@ -30,22 +31,24 @@ fn main() {
                     ask: "Commit text?",
                     default: "Description?",
                 },
-                &Ask{
+                &Ask {
                     ask: "Push to remote?",
                 },
                 &Command {
                     action: "git",
                     args: &["push", "-u"],
                 },
-                &Ask {
-                    ask: "Create PR?",
-                },
+                &Ask { ask: "Create PR?" },
                 &CreatePR {
                     ask: "PR title?",
                     default: "Description?",
-                }
+                },
             ]);
         }
+        Some("ci") => while_question_success(vec![&Command {
+            action: "hub",
+            args: &["ci-status", "-v"],
+        }]),
         _ => {
             println!("unknown command");
             std::process::exit(1);
@@ -58,7 +61,7 @@ fn while_question_success<'a>(questions: Vec<&Question>) {
     for question in questions {
         match question.ask(&mut context) {
             Err(_) => return,
-            Ok(_) => {},
+            Ok(_) => {}
         }
     }
 }
