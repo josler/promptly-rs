@@ -1,4 +1,4 @@
-use std::io::{stdin, BufRead, Result, Write, Error, ErrorKind};
+use std::io::{stdin, BufRead, Error, ErrorKind, Result, Write};
 use std::process::{Command, Stdio};
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
@@ -65,7 +65,9 @@ impl CLI {
         let stdout = StandardStream::stdout(ColorChoice::Always);
         let mut stdout = stdout.lock();
 
-        stdout.set_color(ColorSpec::new().set_fg(Some(Color::Green)).set_bold(true)).unwrap();
+        stdout
+            .set_color(ColorSpec::new().set_fg(Some(Color::Green)).set_bold(true))
+            .unwrap();
         stdout.write_all(formatted.as_bytes()).unwrap();
         stdout.reset().unwrap();
         stdout.flush().unwrap();
