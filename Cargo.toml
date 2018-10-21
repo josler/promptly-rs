@@ -5,7 +5,11 @@ authors = ["josler <j.osler@gmail.com>"]
 
 [dependencies]
 clap = "2.31"
+dirs = "1.0"
 failure = "0.1.2"
 termion = "1.5.1"
 failure_derive = "0.1.2"
 termcolor = "1"
+toml = "0.4.2"
+serde = "1"
+serde_derive = "1"
