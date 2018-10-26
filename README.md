@@ -15,7 +15,7 @@ Or from source: (Rust 1.30+)
 ```
 git clone git@github.com:josler/promptly-rs.git
 cd promptly-rs
-cargo install .
+cargo install
 ```
 
 ### Dependencies
