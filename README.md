@@ -26,6 +26,8 @@ GitHub's [hub](https://github.com/github/hub), for some functionality. Hopefully
 
 #### Auto PR
 
+![promptly](https://user-images.githubusercontent.com/167061/47574745-48443800-d90e-11e8-9f46-1cdd1422141b.gif)
+
 Promptly can automatically follow several steps to generate a PR in the style I'm accustomed:
 
 1. Ask for description
@@ -33,7 +35,8 @@ Promptly can automatically follow several steps to generate a PR in the style I'
 1. Generate commit from description (can override), commit
 1. Ask to push to remote
 1. Ask to generate pull request using `hub`
-1. Generate PR title from description (can override)
+1. Generate Github PR title from description (can override)
+1. Open the Github PR in a browser
 
 ```
 $ promptly pr
