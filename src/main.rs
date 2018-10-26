@@ -3,7 +3,6 @@ extern crate dirs;
 extern crate failure;
 extern crate termcolor;
 extern crate toml;
-#[macro_use]
 extern crate serde_derive;
 
 mod cli;
