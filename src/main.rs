@@ -3,8 +3,8 @@ mod config;
 mod question;
 use std::collections::HashMap;
 
-use clap::{App, SubCommand};
 use crate::question::*;
+use clap::{App, SubCommand};
 
 fn main() {
     let config = config::Config::new();
@@ -45,12 +45,10 @@ fn main() {
                 },
             ]);
         }
-        Some("ci") => while_question_success(vec![
-            &Command {
-                action: "hub",
-                args: &["ci-status", "-v"],
-            },
-        ]),
+        Some("ci") => while_question_success(vec![&Command {
+            action: "hub",
+            args: &["ci-status", "-v"],
+        }]),
         _ => {
             println!("unknown command");
             std::process::exit(1);
@@ -62,7 +60,7 @@ fn while_question_success(questions: Vec<&Question>) {
     let mut context = HashMap::new();
     for question in questions {
         if question.ask(&mut context).is_err() {
-            return
+            return;
         }
     }
 }

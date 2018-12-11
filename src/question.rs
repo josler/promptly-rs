@@ -55,10 +55,12 @@ impl<'a> Question for PRBranch<'a> {
     fn ask(&self, context: &mut HashMap<String, String>) -> Result<String, Error> {
         let c = cli::CLI::new();
         let default = get_default(context, self.default);
-        let branch_name = c.question(
-            self.ask,
-            &format!("{}{}", self.prefix, &default.replace(" ", "-")),
-        ).unwrap();
+        let branch_name = c
+            .question(
+                self.ask,
+                &format!("{}{}", self.prefix, &default.replace(" ", "-")),
+            )
+            .unwrap();
         context.insert(self.ask.to_string(), branch_name.clone());
         let res = c.run_command("git", &["checkout", "-b", &branch_name])?;
         Ok(res)
