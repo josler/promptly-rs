@@ -1,4 +1,4 @@
-use cli;
+use crate::cli;
 use failure::Error;
 use std::collections::HashMap;
 
@@ -97,7 +97,7 @@ impl<'a> Question for CreatePR<'a> {
 fn get_default<'a>(context: &'a mut HashMap<String, String>, key: &str) -> String {
     context
         .entry(key.to_string())
-        .or_insert("pr description".to_string())
+        .or_insert_with(|| "pr_description".to_string())
         .to_string()
 }
 
