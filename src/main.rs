@@ -1,17 +1,10 @@
-extern crate clap;
-extern crate dirs;
-extern crate failure;
-extern crate termcolor;
-extern crate toml;
-extern crate serde_derive;
-
 mod cli;
 mod config;
 mod question;
 use std::collections::HashMap;
 
+use crate::question::*;
 use clap::{App, SubCommand};
-use question::*;
 
 fn main() {
     let config = config::Config::new();
@@ -52,12 +45,10 @@ fn main() {
                 },
             ]);
         }
-        Some("ci") => while_question_success(vec![
-            &Command {
-                action: "hub",
-                args: &["ci-status", "-v"],
-            },
-        ]),
+        Some("ci") => while_question_success(vec![&Command {
+            action: "hub",
+            args: &["ci-status", "-v"],
+        }]),
         _ => {
             println!("unknown command");
             std::process::exit(1);
@@ -65,12 +56,11 @@ fn main() {
     }
 }
 
-fn while_question_success<'a>(questions: Vec<&Question>) {
+fn while_question_success(questions: Vec<&Question>) {
     let mut context = HashMap::new();
     for question in questions {
-        match question.ask(&mut context) {
-            Err(_) => return,
-            Ok(_) => {}
+        if question.ask(&mut context).is_err() {
+            return;
         }
     }
 }

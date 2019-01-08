@@ -1,4 +1,4 @@
-use cli;
+use crate::cli;
 use failure::Error;
 use std::collections::HashMap;
 
@@ -55,10 +55,12 @@ impl<'a> Question for PRBranch<'a> {
     fn ask(&self, context: &mut HashMap<String, String>) -> Result<String, Error> {
         let c = cli::CLI::new();
         let default = get_default(context, self.default);
-        let branch_name = c.question(
-            self.ask,
-            &format!("{}{}", self.prefix, &default.replace(" ", "-")),
-        ).unwrap();
+        let branch_name = c
+            .question(
+                self.ask,
+                &format!("{}{}", self.prefix, &default.replace(" ", "-")),
+            )
+            .unwrap();
         context.insert(self.ask.to_string(), branch_name.clone());
         let res = c.run_command("git", &["checkout", "-b", &branch_name])?;
         Ok(res)
@@ -97,7 +99,7 @@ impl<'a> Question for CreatePR<'a> {
 fn get_default<'a>(context: &'a mut HashMap<String, String>, key: &str) -> String {
     context
         .entry(key.to_string())
-        .or_insert("pr description".to_string())
+        .or_insert_with(|| "pr_description".to_string())
         .to_string()
 }
 

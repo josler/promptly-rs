@@ -1,8 +1,8 @@
 use dirs;
+use serde_derive::*;
 use std::fs;
 use std::path::Path;
 use toml;
-use serde_derive::*;
 
 #[derive(Deserialize, Serialize)]
 pub struct Config {

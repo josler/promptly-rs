@@ -16,12 +16,12 @@ impl CLI {
         if let Err(err) = self.read_in(&mut input) {
             return Err(err);
         }
-        Ok(self.trim_lower(input, default))
+        Ok(self.trim_lower(&input, default))
     }
 
     pub fn yes_no_question(&self, question: &str, default: &str) -> Result<bool> {
         let res = self.question(question, default);
-        return match res {
+        match res {
             Err(err) => Err(err),
             Ok(val) => {
                 let yes_values: [String; 3] = ["yes".to_string(), "y".into(), "1".into()];
@@ -31,7 +31,7 @@ impl CLI {
                     Err(Error::new(ErrorKind::Other, "unsuccessful command"))
                 }
             }
-        };
+        }
     }
 
     pub fn run_command(&self, action: &str, args: &[&str]) -> Result<String> {
@@ -47,19 +47,19 @@ impl CLI {
         Ok(str_out.to_string())
     }
 
-    fn trim_lower<'a>(&self, input: String, default: &'a str) -> String {
+    fn trim_lower<'a>(&self, input: &str, default: &'a str) -> String {
         let trimmed = input.trim();
         if trimmed.is_empty() {
             return default.to_string();
         }
-        let lower = trimmed.to_lowercase();
-        lower
+        trimmed.to_lowercase()
     }
 
     fn write_out(&self, text: &str, default: &str) {
-        let formatted = match default.is_empty() {
-            true => format!("{}\n", text),
-            false => format!("{} |{}|\n", text, default),
+        let formatted = if default.is_empty() {
+            format!("{}\n", text)
+        } else {
+            format!("{} |{}|\n", text, default)
         };
 
         let stdout = StandardStream::stdout(ColorChoice::Always);
