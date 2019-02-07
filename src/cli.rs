@@ -66,7 +66,7 @@ impl CLI {
         let mut stdout = stdout.lock();
 
         stdout
-            .set_color(ColorSpec::new().set_fg(Some(Color::Green)).set_bold(true))
+            .set_color(ColorSpec::new().set_fg(Some(Color::Green)))
             .unwrap();
         stdout.write_all(formatted.as_bytes()).unwrap();
         stdout.reset().unwrap();
