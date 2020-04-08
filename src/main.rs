@@ -13,6 +13,7 @@ fn main() {
         .author("James Osler")
         .subcommand(SubCommand::with_name("pr").about("submit pull request"))
         .subcommand(SubCommand::with_name("ci").about("check github ci status"))
+        .subcommand(SubCommand::with_name("fresh").about("new branch and bundle install"))
         .subcommand(SubCommand::with_name("config").about("config"))
         .get_matches();
     match matches.subcommand_name() {
@@ -49,6 +50,25 @@ fn main() {
             action: "hub",
             args: &["ci-status", "-v"],
         }]),
+        Some("fresh") => {
+            while_question_success(vec![
+                &Command {
+                    action: "git",
+                    args: &["checkout", "master"],
+                },
+                &Command {
+                    action: "git",
+                    args: &["up"],
+                },
+                &Ask {
+                    ask: "Bundle install?",
+                },
+                &Command {
+                    action: "bundle",
+                    args: &["install"],
+                },
+            ])
+        }
         _ => {
             println!("unknown command");
             std::process::exit(1);
@@ -56,7 +76,7 @@ fn main() {
     }
 }
 
-fn while_question_success(questions: Vec<&Question>) {
+fn while_question_success(questions: Vec<&dyn Question>) {
     let mut context = HashMap::new();
     for question in questions {
         if question.ask(&mut context).is_err() {
